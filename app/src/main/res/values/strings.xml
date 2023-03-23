@@ -5,6 +5,12 @@
     <string name="question_service">Компонент Android-приложения Service предоставляют доступ к данным.</string>
     <string name="question_res">Ресурсы приложения содержатся в отдельном файле XML.</string>
     <string name="question_manifest">AndroidManifest.xml предоставляет системе основную информацию о программе.</string>
+    <string name="question_creator">Первоначальный создатель android - google?</string>
+    <string name="question_popularity">Правда ли, что более 70% всех мобильных устройств в мире работают на android?</string>
+    <string name="question_maps">Карты Google делают расчет дорожных пробок тоьлко на основе устройств, работающих под управлением Android.</string>
+    <string name="question_volumes">Продажи Android-устройств превышают объемы продаж устройств на базе Microsoft Windows, iOS и macOS вместе взятых.</string>
+    <string name="question_logo"> Логотип android разработан российским дизайнером</string>
+
     <string name="true_button">Да</string>
     <string name="false_button">Нет</string>
     <string name="correct_toast">Верно!</string>

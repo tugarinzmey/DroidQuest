@@ -2,12 +2,19 @@ package com.vnukov.droidquest
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        private val TAG = "QuestActivity"
+        private val KEY_INDEX = "index"
+    }
+
+
     private lateinit var mTrueButton: Button
     private lateinit var mFalseButton: Button
     private lateinit var mNextButton: ImageButton
@@ -19,12 +26,22 @@ class MainActivity : AppCompatActivity() {
         Question(R.string.question_service, false),
         Question(R.string.question_res, true),
         Question(R.string.question_manifest, true),
+        Question(R.string.question_creator, false),
+        Question(R.string.question_popularity, true),
+        Question(R.string.question_maps, true),
+        Question(R.string.question_volumes, true),
+        Question(R.string.question_logo, true),
     )
     private var mCurrentIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Log.d(TAG, "onCreate вызван")
+
+        if (savedInstanceState != null){
+            mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0)
+        }
 
         mTrueButton = findViewById(R.id.true_button)
         mTrueButton.setOnClickListener{
@@ -50,6 +67,37 @@ class MainActivity : AppCompatActivity() {
         updateQuestion()
     }
 
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "onStart вызван")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "onPause вызван")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "onResume вызван")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "onStop вызван")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy вызван")
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        Log.d(TAG, "onSaveInstanceState вызван")
+        outState!!.putInt(KEY_INDEX, mCurrentIndex)
+    }
+
     private fun updateQuestion() {
         val question = mQuestionBank[mCurrentIndex].textResId
         mQuestionTextView.setText(question)
@@ -65,10 +113,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun switchQuestion(next: Boolean) {
-        mCurrentIndex = if (next){
-            (mCurrentIndex + 1) % mQuestionBank.size
+        if (next){
+            mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.size
         } else {
-            (mCurrentIndex - 1) % mQuestionBank.size
+            if (mCurrentIndex > 0)
+            mCurrentIndex = (mCurrentIndex - 1) % mQuestionBank.size
         }
         updateQuestion()
     }
