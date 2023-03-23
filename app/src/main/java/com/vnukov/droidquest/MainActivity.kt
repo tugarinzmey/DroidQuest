@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mQuestionTextView: TextView
     private lateinit var mDeceitButton: Button
     private val mQuestionBank = listOf(
-        Question(R.string.question_android, true),
+        Question(R.string.question_android, true, ),
         Question(R.string.question_linear, false),
         Question(R.string.question_service, false),
         Question(R.string.question_res, true),
@@ -75,6 +75,7 @@ class MainActivity : AppCompatActivity() {
         mDeceitButton = findViewById(R.id.deceit_button)
         mDeceitButton.setOnClickListener {
             val answerIsTrue = mQuestionBank[mCurrentIndex].answerTrue
+            mQuestionBank[mCurrentIndex].deceited = true
             val intent = DeceitActivity.newIntent(this, answerIsTrue)
             if (intent != null) {
                 startActivityForResult(intent, REQUEST_CODE_DECEIT)
@@ -135,7 +136,8 @@ class MainActivity : AppCompatActivity() {
     }
     private fun checkAnswer(userPressedTrue: Boolean)  {
         val answerIsTrue = mQuestionBank[mCurrentIndex].answerTrue
-        val messageResId = if (mIsDeceiter) R.string.judgment_toast
+
+        val messageResId = if (mIsDeceiter || mQuestionBank[mCurrentIndex].deceited) R.string.judgment_toast
         else if (userPressedTrue == answerIsTrue) {
             R.string.correct_toast
         }

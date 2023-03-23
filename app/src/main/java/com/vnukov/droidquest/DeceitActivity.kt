@@ -37,12 +37,9 @@ class DeceitActivity : AppCompatActivity() {
         mShowAnswer = findViewById(R.id.show_answer_button)
         mShowAnswer.setOnClickListener {
             mAnswerTextView.setText(
-                if (mAnswerIsTrue)
-                    R.string.true_button
-                else
-                    R.string.false_button
+                if (mAnswerIsTrue) R.string.true_button
+                else R.string.false_button)
                 setAnswerShownResult(true)
-            )
         }
     }
     private fun setAnswerShownResult(isAnswerShown: Boolean){
