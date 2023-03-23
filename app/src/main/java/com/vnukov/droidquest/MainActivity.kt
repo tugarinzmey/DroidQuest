@@ -1,5 +1,6 @@
 package com.vnukov.droidquest
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -12,6 +13,8 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private val TAG = "QuestActivity"
         private val KEY_INDEX = "index"
+        private val REQUEST_CODE_DECEIT = 0
+        private val DECEITER = "deceit"
     }
 
 
@@ -20,6 +23,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mNextButton: ImageButton
     private lateinit var mPreviousButton: ImageButton
     private lateinit var mQuestionTextView: TextView
+    private lateinit var mDeceitButton: Button
     private val mQuestionBank = listOf(
         Question(R.string.question_android, true),
         Question(R.string.question_linear, false),
@@ -33,6 +37,7 @@ class MainActivity : AppCompatActivity() {
         Question(R.string.question_logo, true),
     )
     private var mCurrentIndex = 0
+    private var mIsDeceiter = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState != null){
             mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0)
+            mIsDeceiter = savedInstanceState.getBoolean(DECEITER, false)
         }
 
         mTrueButton = findViewById(R.id.true_button)
@@ -57,6 +63,7 @@ class MainActivity : AppCompatActivity() {
 
         mNextButton = findViewById(R.id.next_button)
         mNextButton.setOnClickListener {
+            mIsDeceiter = false
             switchQuestion(true)
         }
 
@@ -64,7 +71,30 @@ class MainActivity : AppCompatActivity() {
         mPreviousButton.setOnClickListener {
             switchQuestion(false)
         }
+
+        mDeceitButton = findViewById(R.id.deceit_button)
+        mDeceitButton.setOnClickListener {
+            val answerIsTrue = mQuestionBank[mCurrentIndex].answerTrue
+            val intent = DeceitActivity.newIntent(this, answerIsTrue)
+            if (intent != null) {
+                startActivityForResult(intent, REQUEST_CODE_DECEIT)
+            }
+        }
         updateQuestion()
+    }
+
+    override fun onActivityResult(requestCode: Int,
+                                  resultCode: Int,
+                                  data: Intent?) {
+        if (resultCode != RESULT_OK){
+            return
+        }
+        if (requestCode == REQUEST_CODE_DECEIT){
+            if (data == null){
+                return
+            }
+            mIsDeceiter = DeceitActivity.wasAnswerShown(result = data)
+        }
     }
 
     override fun onStart() {
@@ -96,6 +126,7 @@ class MainActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
         Log.d(TAG, "onSaveInstanceState вызван")
         outState!!.putInt(KEY_INDEX, mCurrentIndex)
+        outState!!.putBoolean(DECEITER, mIsDeceiter)
     }
 
     private fun updateQuestion() {
@@ -104,9 +135,11 @@ class MainActivity : AppCompatActivity() {
     }
     private fun checkAnswer(userPressedTrue: Boolean)  {
         val answerIsTrue = mQuestionBank[mCurrentIndex].answerTrue
-        val messageResId = if (userPressedTrue == answerIsTrue) {
+        val messageResId = if (mIsDeceiter) R.string.judgment_toast
+        else if (userPressedTrue == answerIsTrue) {
             R.string.correct_toast
-        } else {
+        }
+        else {
             R.string.incorrect_toast
         }
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
