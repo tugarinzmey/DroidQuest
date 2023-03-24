@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -75,28 +76,24 @@ class MainActivity : AppCompatActivity() {
         mDeceitButton = findViewById(R.id.deceit_button)
         mDeceitButton.setOnClickListener {
             val answerIsTrue = mQuestionBank[mCurrentIndex].answerTrue
-            mQuestionBank[mCurrentIndex].deceited = true
             val intent = DeceitActivity.newIntent(this, answerIsTrue)
             if (intent != null) {
-                startActivityForResult(intent, REQUEST_CODE_DECEIT)
+                deceitActivityResultLauncher.launch(intent)
             }
         }
         updateQuestion()
     }
-
-    override fun onActivityResult(requestCode: Int,
-                                  resultCode: Int,
-                                  data: Intent?) {
-        if (resultCode != RESULT_OK){
-            return
-        }
-        if (requestCode == REQUEST_CODE_DECEIT){
-            if (data == null){
-                return
+    private val deceitActivityResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            result ->
+            if (result.resultCode == RESULT_OK) {
+                val data: Intent? = result.data
+                if (data != null){
+                    mIsDeceiter = DeceitActivity.wasAnswerShown(result = data)
+                    mQuestionBank[mCurrentIndex].deceited = mIsDeceiter
+                }
             }
-            mIsDeceiter = DeceitActivity.wasAnswerShown(result = data)
         }
-    }
 
     override fun onStart() {
         super.onStart()
@@ -137,7 +134,13 @@ class MainActivity : AppCompatActivity() {
     private fun checkAnswer(userPressedTrue: Boolean)  {
         val answerIsTrue = mQuestionBank[mCurrentIndex].answerTrue
 
+        Log.d(TAG, "mIsDeceiter")
+        Log.d(TAG, mIsDeceiter.toString())
+        Log.d(TAG, "question field")
+        Log.d(TAG, mQuestionBank[mCurrentIndex].deceited.toString())
+
         val messageResId = if (mIsDeceiter || mQuestionBank[mCurrentIndex].deceited) R.string.judgment_toast
+
         else if (userPressedTrue == answerIsTrue) {
             R.string.correct_toast
         }
@@ -148,11 +151,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun switchQuestion(next: Boolean) {
-        if (next){
+        if (next) {
             mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.size
-        } else {
+        }
+        else {
             if (mCurrentIndex > 0)
-            mCurrentIndex = (mCurrentIndex - 1) % mQuestionBank.size
+                mCurrentIndex = (mCurrentIndex - 1) % mQuestionBank.size
         }
         updateQuestion()
     }

@@ -11,8 +11,10 @@ import android.widget.TextView
 class DeceitActivity : AppCompatActivity() {
     private lateinit var mAnswerTextView: TextView
     private lateinit var mShowAnswer: Button
+    private var mDeceitStatus = true
 
     companion object{
+        private val DECEITER_STATE = "deceited"
         fun newIntent(packageContext: Context?, answerIsTrue: Boolean):
                 Intent ? {
             val intent = Intent(packageContext, DeceitActivity::class.java)
@@ -33,9 +35,14 @@ class DeceitActivity : AppCompatActivity() {
             EXTRA_ANSWER_IS_TRUE, false
         )
 
+        if(savedInstanceState != null){
+            mDeceitStatus = savedInstanceState.getBoolean(DECEITER_STATE, false)
+        }
+
         mAnswerTextView = findViewById(R.id.answer_text_view)
         mShowAnswer = findViewById(R.id.show_answer_button)
         mShowAnswer.setOnClickListener {
+//            mDeceitStatus = false
             mAnswerTextView.setText(
                 if (mAnswerIsTrue) R.string.true_button
                 else R.string.false_button)
@@ -46,5 +53,10 @@ class DeceitActivity : AppCompatActivity() {
         val data = Intent()
         data.putExtra(EXTRA_ANSWER_SHOWN, isAnswerShown)
         setResult(Activity.RESULT_OK, data)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(DeceitActivity.DECEITER_STATE, mDeceitStatus)
     }
 }
